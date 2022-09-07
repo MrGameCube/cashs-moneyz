@@ -35,11 +35,13 @@ func main() {
 func initializeGin() *gin.Engine {
 
 	router := gin.Default()
-	router.LoadHTMLFiles("../web/public/index.html")
-
+	router.LoadHTMLFiles("frontend/public/index.html")
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(200, "index.html", nil)
+	})
 	router.GET("/helloWorld", handleHelloWorld)
 
-	router.Static("/static", "../web/public/static")
+	router.Static("/static", "frontend/public/static")
 	return router
 }
 
