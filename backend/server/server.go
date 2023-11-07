@@ -1,12 +1,10 @@
 package main
 
 import (
-	cashs_moneyz_shared "cashs-moneyz/cashs-moneyz-shared"
 	"context"
-	"database/sql"
 	"errors"
 	"github.com/gin-gonic/gin"
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/jinzhu/gorm"
 	"log"
 	"net/http"
 	"os"
@@ -15,16 +13,12 @@ import (
 	"time"
 )
 
-var CityRepository *cashs_moneyz_shared.SQLiteRepository
+var db *gorm.DB
 
 func main() {
 
-	db, err := sql.Open("sqlite3", "cashs.db")
-	if err != nil {
-		log.Fatal("DB Error can't load city data:", err)
-		return
-	}
-	CityRepository = cashs_moneyz_shared.NewSQLiteRepo(db)
+	db = InitDB()
+	defer db.Close()
 	router := initializeGin()
 	server := initializeHTTPServer(router)
 	waitForShutdown(server)
@@ -42,6 +36,7 @@ func initializeGin() *gin.Engine {
 	router.GET("/helloWorld", handleHelloWorld)
 
 	router.Static("/static", "frontend/public/static")
+	initGroupHandlers(router)
 	return router
 }
 
